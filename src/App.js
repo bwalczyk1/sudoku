@@ -1,10 +1,17 @@
-import React, { Component } from 'react';
-import Board from './components/Board';
+import React, { Component } from 'react'
+import Board from './components/Board'
+import './App.css'
 
 export default class App extends Component { 
   constructor(){
     super();
-    let defaultSet = "568040003002090007097860000600310409030050062019600508003006801051000020900700345"
+    let availableSets = ["568040003002090007097860000600310409030050062019600508003006801051000020900700345", 
+        "070086002060407008800910700780040005310860000002790603540629000020158049100004000",
+        "680007100020915807900603520056002000300000000092060058700056081008349006000801430",
+        "006057820210006750753004009060005300000700402300928006020540001001070948009001070",
+        "020010000000600520805000076381906450560302791000104008102060900000500007450890000"
+      ]
+    let defaultSet = availableSets[Math.floor(Math.random()*availableSets.length)]
     let solve = require('@mattflow/sudoku-solver')
     let solution = solve(defaultSet)
     let fieldsObject = {}
@@ -17,8 +24,15 @@ export default class App extends Component {
   }
 
   handleKeyDown(event){
-    // arrows
     let keyCode = event.keyCode
+    if(keyCode === 8){ // backspace
+      let fieldsObject = this.state.fieldsObject
+      if(fieldsObject[this.state.selectedField].mode === 'set')
+        return
+      fieldsObject[this.state.selectedField] = {mode: 'normal', value: 0}
+      this.setState({fieldsObject: fieldsObject})
+    }
+    // arrows
     if(keyCode === 37 && this.state.selectedField % 9 !== 0) // left
       this.setState({selectedField: this.state.selectedField - 1})
     else if(keyCode === 38 && Math.floor(this.state.selectedField/9) !== 0) // up
@@ -27,9 +41,9 @@ export default class App extends Component {
       this.setState({selectedField: this.state.selectedField + 1})
     else if(keyCode === 40 && Math.floor(this.state.selectedField/9) !== 8) // down
       this.setState({selectedField: this.state.selectedField + 9})
-    else if(keyCode >= 49 && keyCode <= 57)
+    else if(keyCode >= 49 && keyCode <= 57) // numbers
       this.changeFieldValue(keyCode - 48)
-    else if(keyCode >= 97 && keyCode <= 105)
+    else if(keyCode >= 97 && keyCode <= 105) // numbers
       this.changeFieldValue(keyCode - 96)
   }
 
@@ -41,10 +55,12 @@ export default class App extends Component {
   }
 
   changeFieldValue(value){
-    if(this.state.fieldsObject[this.state.selectedField].mode === 'set')
+    if(this.state.lock || this.state.fieldsObject[this.state.selectedField].mode === 'set')
       return
     let fieldsObject = this.state.fieldsObject
-    if(this.state.mode === "normal"){
+    if(this.state.mode === 'normal'){
+      if(document.getElementById('number' + value).className === 'noNumbersLeft')
+        return
       fieldsObject[this.state.selectedField].mode = 'normal'
       fieldsObject[this.state.selectedField].value = value
     }
@@ -56,18 +72,34 @@ export default class App extends Component {
       if(!fieldsObject[this.state.selectedField].value.includes(value)){
         fieldsObject[this.state.selectedField].value.push(value)
       }
+      else{
+        let newFieldValueArray = []
+        for(let hintValue of fieldsObject[this.state.selectedField].value){
+          if(hintValue !== value)
+            newFieldValueArray.push(hintValue)
+        }
+        fieldsObject[this.state.selectedField].value = newFieldValueArray
+      }
     }
-    this.setState({fieldsObject: fieldsObject})
+    this.setState({fieldsObject: fieldsObject}, () => {
+      if(this.state.mode !== 'normal')
+        return
+      for(let i = 0; i < 81; i++){
+        if(this.state.fieldsObject[i].value !== parseInt(this.state.solution[i]))
+          return
+      }
+      window.print()
+    })
   }
 
   loadFile(file){
     let reader = new FileReader()
     reader.readAsText(file)
     reader.onload = () => {
-      let fieldsObject;
+      let fieldsObject
       let fieldsString = ""
       if(reader.result.includes('{')){
-        // reading saved json file
+        // load json file
         fieldsObject  = JSON.parse(reader.result)
         for(let i = 0; i < 81; i++){
           if(fieldsObject[i].mode === 'set')
@@ -77,7 +109,7 @@ export default class App extends Component {
         }
       }
       else{
-        // read txt file
+        // load text file
         fieldsObject = this.state.fieldsObject
         fieldsString = reader.result
         for(let i in fieldsObject){
@@ -90,8 +122,14 @@ export default class App extends Component {
         }
       }
       let solve = require('@mattflow/sudoku-solver')
-      let solution = solve(fieldsString)
-      this.setState({fieldsObject: fieldsObject, solution: solution})
+      try{
+        let solution = solve(fieldsString)
+        this.setState({fieldsObject: fieldsObject, solution: solution, lock: false})
+      }
+      catch{
+        this.setState({lock: true})
+        alert('This set is unresolvable. Please choose different one.')
+      }
     }
   }
 
@@ -115,45 +153,44 @@ export default class App extends Component {
   solveSudoku(){
     let fieldsObject = this.state.fieldsObject
     for(let i in this.state.solution){
-      fieldsObject[i].value = this.state.solution[i]
-      if(fieldsObject[i].mode !== "set")
+      fieldsObject[i].value = parseInt(this.state.solution[i])
+      if(fieldsObject[i].mode === 'hint')
         fieldsObject[i].mode = 'normal'
     }
-    this.setState({fieldsObject: fieldsObject})
+    this.setState({fieldsObject: fieldsObject}, ()=>window.print())
   }
 
   render() {
-    let numberBlockStyle = {width: "50px", height: "50px", padding: "10px", margin: "5px", backgroundColor: "grey", display: "flex", justifyContent: "center", alignItems: 'center'}
+    let numberBlockStyle = {width: "50px", height: "50px", padding: "10px", margin: "5px", display: "flex", justifyContent: "center", alignItems: 'center'}
+    let numbers = []
+    for(let i = 0; i < 3; i++){
+        let row = []
+        for(let j = 0; j < 3; j++){
+            let numbersWrittenLength = 0;
+            for(let k = 0; k < 81; k++){
+              if(this.state.fieldsObject[k].value === 3*i + j + 1)
+                numbersWrittenLength += 1
+            }
+            row.push(<div id={ "number" + (3*i + j + 1) } className={ numbersWrittenLength === 11 ? "noNumbersLeft" : 'numbersLeft' } style={ numberBlockStyle } onClick={() => this.changeFieldValue(3*i + j + 1)}>{3*i + j + 1}</div>)
+        }
+        numbers.push(<div style={{display: "flex", flexDirection: "row"}} key={i}>{ row }</div>)
+    }
     return (
-      <div style={{display: "flex", flexDirection: "row", width: "100vw", height: "100vh", alignItems: "center", justifyContent: "space-around", fontSize: '20px'}}>
-        <input type="file" onChange={(e)=> this.loadFile(e.target.files[0])}/>
-        <Board fieldsObject={ this.state.fieldsObject } selectedField={this.state.selectedField} solution={this.state.solution}/>
-        <div style={{height: '50vh', display: "flex", flexDirection: "column", justifyContent: 'space-evenly', alignItems: 'center'}}>
+      <div id='main' style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-around", fontSize: '20px'}}>
+        <input  className='printIgnore' type="file" onChange={(e)=> this.loadFile(e.target.files[0])}/>
+        <Board  className='printable'  fieldsObject={ this.state.fieldsObject } selectedField={this.state.selectedField} solution={this.state.solution}/>
+        <div className='printIgnore' style={{height: '50vh', flexDirection: "column", justifyContent: 'space-evenly', alignItems: 'center'}}>
           <div style={{border: "1px solid black", padding: "5px 45px 5px 45px"}} onClick={() => this.solveSudoku()}>Solve</div>
           <div>
             <label htmlFor="hint">Hint:</label>
             <input type="checkbox" id="hint" checked={this.state.mode === "hint"} onChange={() => this.handleModeChange("hint")}/>
           </div>
-          <div>
+          {/* <div>
             <label htmlFor="erase">Erase:</label>
             <input type="checkbox" id="erase" checked={this.state.mode === "erase"} onChange={() => this.handleModeChange("erase")}/>
-          </div>
+          </div> */}
           <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div style={{display: "flex", flexDirection: "row"}}>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(1)}>1</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(2)}>2</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(3)}>3</div>
-            </div>
-            <div style={{display: "flex", flexDirection: "row"}}>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(4)}>4</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(5)}>5</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(6)}>6</div>
-            </div>
-            <div style={{display: "flex", flexDirection: "row"}}>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(7)}>7</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(8)}>8</div>
-              <div style={ numberBlockStyle } onClick={() => this.changeFieldValue(9)}>9</div>
-            </div>
+            { numbers }
           </div>
           <div style={{border: "1px solid black", padding: "5px 45px 5px 45px"}} onClick={() => this.saveFile()}>Save file</div>
         </div>
