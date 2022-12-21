@@ -127,7 +127,7 @@ export default class App extends Component {
         this.setState({fieldsObject: fieldsObject, solution: solution, lock: false})
       }
       catch{
-        this.setState({lock: true})
+        this.setState({fieldsObject: fieldsObject, lock: true})
         alert('This set is unresolvable. Please choose different one.')
       }
     }
@@ -161,7 +161,6 @@ export default class App extends Component {
   }
 
   render() {
-    let numberBlockStyle = {width: "50px", height: "50px", padding: "10px", margin: "5px", display: "flex", justifyContent: "center", alignItems: 'center'}
     let numbers = []
     for(let i = 0; i < 3; i++){
         let row = []
@@ -171,16 +170,16 @@ export default class App extends Component {
               if(this.state.fieldsObject[k].value === 3*i + j + 1)
                 numbersWrittenLength += 1
             }
-            row.push(<div id={ "number" + (3*i + j + 1) } className={ numbersWrittenLength === 11 ? "noNumbersLeft" : 'numbersLeft' } style={ numberBlockStyle } onClick={() => this.changeFieldValue(3*i + j + 1)}>{3*i + j + 1}</div>)
+            row.push(<div id={ "number" + (3*i + j + 1) } className={ numbersWrittenLength === 11 ? "noNumbersLeft" : 'numbersLeft' } onClick={() => this.changeFieldValue(3*i + j + 1)}>{3*i + j + 1}</div>)
         }
         numbers.push(<div style={{display: "flex", flexDirection: "row"}} key={i}>{ row }</div>)
     }
     return (
-      <div id='main' style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-around", fontSize: '20px'}}>
-        <input  className='printIgnore' type="file" onChange={(e)=> this.loadFile(e.target.files[0])}/>
-        <Board  className='printable'  fieldsObject={ this.state.fieldsObject } selectedField={this.state.selectedField} solution={this.state.solution}/>
+      <div id='main'>
+        <input className='printIgnore' type="file" onChange={(e)=> this.loadFile(e.target.files[0])}/>
+        <Board fieldsObject={ this.state.fieldsObject } selectedField={this.state.selectedField} solution={this.state.solution}/>
         <div className='printIgnore' style={{height: '50vh', flexDirection: "column", justifyContent: 'space-evenly', alignItems: 'center'}}>
-          <div style={{border: "1px solid black", padding: "5px 45px 5px 45px"}} onClick={() => this.solveSudoku()}>Solve</div>
+          <div className='button' onClick={() => this.solveSudoku()}>Solve</div>
           <div>
             <label htmlFor="hint">Hint:</label>
             <input type="checkbox" id="hint" checked={this.state.mode === "hint"} onChange={() => this.handleModeChange("hint")}/>
@@ -192,7 +191,7 @@ export default class App extends Component {
           <div style={{display: 'flex', flexDirection: 'column'}}>
             { numbers }
           </div>
-          <div style={{border: "1px solid black", padding: "5px 45px 5px 45px"}} onClick={() => this.saveFile()}>Save file</div>
+          <div className='button' onClick={() => this.saveFile()}>Save file</div>
         </div>
       </div>
     );

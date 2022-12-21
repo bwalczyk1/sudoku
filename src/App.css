@@ -1,10 +1,36 @@
 .printIgnore {
   display: flex;
+  width: 33vw;
 }
 
 #main {
-  width: 100vw; 
-  height: 100vh
+  width: 100vw;
+  height: 100vh;
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+  justify-content: space-around; 
+  font-size: 4vmin;
+}
+/* 
+#board{
+  max-width: 33vw;
+  max-height: 33vw;
+} */
+
+.button{
+  border: 0.1vmin solid black; 
+  padding: 0.5vmin 4.5vmin 0.5vmin 4.5vmin;
+}
+
+.numbersLeft, .noNumbersLeft{
+  width: 7.5vmin; 
+  height: 7.5vmin; 
+  padding: 1vmin; 
+  margin: 0.5vmin;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
 }
 
 .numbersLeft{
@@ -14,7 +40,6 @@
 .noNumbersLeft{
   background-color: green;
 }
-
 
 @media print {
   #main{

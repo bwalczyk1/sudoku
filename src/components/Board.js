@@ -16,6 +16,6 @@ export default class Board extends Component {
             }
             board.push(<div style={{display: "flex", flexDirection: "row"}} key={i}>{ row }</div>)
         }
-        return (<div style={{display: "flex", flexDirection: "column"}}>{ board }</div>);
+        return (<div id='board' style={{display: "flex", flexDirection: "column"}}>{ board }</div>);
     }
 }
