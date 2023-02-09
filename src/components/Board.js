@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Field from './Field';
+import '../App.css'
 
 export default class Board extends Component {
     render() {
@@ -16,6 +17,6 @@ export default class Board extends Component {
             }
             board.push(<div style={{display: "flex", flexDirection: "row"}} key={i}>{ row }</div>)
         }
-        return (<div id='board' style={{display: "flex", flexDirection: "column"}}>{ board }</div>);
+        return (<div id='board'>{ board }</div>);
     }
 }

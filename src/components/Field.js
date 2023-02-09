@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
+import '../App.css'
 
 export default class Field extends Component {
   render() {
     let style = {
-        fontSize: '5vmin',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: "10vmin",
-        width: "10vmin",
         color: (this.props.data.mode === 'normal' && this.props.data.value === this.props.correct) ? "blue" : (this.props.data.mode === 'normal' && this.props.data.value !== this.props.correct) ? "red" : 'black',
         backgroundColor: this.props.number % 2 === 0 ? "#e2dede" : "#e4d7be",
         opacity: this.props.isSelected ? '50%' : '100%',
@@ -17,7 +12,7 @@ export default class Field extends Component {
     }
     if(this.props.data.mode !== 'hint')
       return (
-        <div style={ style }>{this.props.data.value !== 0 ? this.props.data.value : ""}</div>
+        <div className='field' style={ style }>{this.props.data.value !== 0 ? this.props.data.value : ""}</div>
       )
     let field = []
     for(let i = 0; i < 3; i++){
@@ -29,6 +24,6 @@ export default class Field extends Component {
     }
     style.flexDirection = "column"
     style.fontSize = "20px"
-    return (<div style={ style }>{ field }</div>);
+    return (<div className='field' style={ style }>{ field }</div>);
   }
 }

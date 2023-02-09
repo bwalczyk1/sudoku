@@ -170,13 +170,13 @@ export default class App extends Component {
               if(this.state.fieldsObject[k].value === 3*i + j + 1)
                 numbersWrittenLength += 1
             }
-            row.push(<div id={ "number" + (3*i + j + 1) } className={ numbersWrittenLength === 11 ? "noNumbersLeft" : 'numbersLeft' } onClick={() => this.changeFieldValue(3*i + j + 1)}>{3*i + j + 1}</div>)
+            row.push(<div id={ "number" + (3*i + j + 1) } key={ "number" + (3*i + j + 1) } className={ numbersWrittenLength === 11 ? "noNumbersLeft" : 'numbersLeft' } onClick={() => this.changeFieldValue(3*i + j + 1)}>{3*i + j + 1}</div>)
         }
         numbers.push(<div style={{display: "flex", flexDirection: "row"}} key={i}>{ row }</div>)
     }
     return (
       <div id='main'>
-        <input className='printIgnore' type="file" onChange={(e)=> this.loadFile(e.target.files[0])}/>
+        <input className='printIgnore' type="file" style={{ minWidth: "33vw" }} onChange={(e)=> this.loadFile(e.target.files[0])}/>
         <Board fieldsObject={ this.state.fieldsObject } selectedField={this.state.selectedField} solution={this.state.solution}/>
         <div className='printIgnore' style={{height: '50vh', flexDirection: "column", justifyContent: 'space-evenly', alignItems: 'center'}}>
           <div className='button' onClick={() => this.solveSudoku()}>Solve</div>
@@ -184,10 +184,6 @@ export default class App extends Component {
             <label htmlFor="hint">Hint:</label>
             <input type="checkbox" id="hint" checked={this.state.mode === "hint"} onChange={() => this.handleModeChange("hint")}/>
           </div>
-          {/* <div>
-            <label htmlFor="erase">Erase:</label>
-            <input type="checkbox" id="erase" checked={this.state.mode === "erase"} onChange={() => this.handleModeChange("erase")}/>
-          </div> */}
           <div style={{display: 'flex', flexDirection: 'column'}}>
             { numbers }
           </div>

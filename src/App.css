@@ -1,6 +1,5 @@
 .printIgnore {
   display: flex;
-  width: 33vw;
 }
 
 #main {
@@ -12,18 +11,28 @@
   justify-content: space-around; 
   font-size: 4vmin;
 }
-/* 
-#board{
-  max-width: 33vw;
-  max-height: 33vw;
-} */
 
-.button{
+#board {
+  display: flex;
+  flex-direction: column;
+  width: min(33vw, 100vh);
+  height: min(33vw, 100vh);
+}
+.field {
+  font-size: min(2vw, 6vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: min(4vw, 11vh);
+  width: min(4vw, 11vh);
+}
+
+.button {
   border: 0.1vmin solid black; 
   padding: 0.5vmin 4.5vmin 0.5vmin 4.5vmin;
 }
 
-.numbersLeft, .noNumbersLeft{
+.numbersLeft, .noNumbersLeft {
   width: 7.5vmin; 
   height: 7.5vmin; 
   padding: 1vmin; 
@@ -33,16 +42,16 @@
   align-items: center;
 }
 
-.numbersLeft{
+.numbersLeft {
   background-color: grey;
 }
 
-.noNumbersLeft{
+.noNumbersLeft {
   background-color: green;
 }
 
 @media print {
-  #main{
+  #main {
     width: 24cm;
   }
   .printIgnore {
