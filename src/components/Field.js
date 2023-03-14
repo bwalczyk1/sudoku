@@ -18,7 +18,7 @@ export default class Field extends Component {
     for(let i = 0; i < 3; i++){
       let row = []
       for(let j = 0; j < 3; j++){
-        row.push(<div key={j} style={{width: '33px', height: '33px', textAlign: 'center'}}>{ this.props.data.value.includes(3*i + j + 1) ? (3*i + j + 1) : ""}</div>)
+        row.push(<div key={j} style={{width: 'min(1vw, 4vh)', height: 'min(1vw, 4vh)', textAlign: 'center'}}>{ this.props.data.value.includes(3*i + j + 1) ? (3*i + j + 1) : ""}</div>)
       }
       field.push(<div key={i} style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems: 'center', height: '33%'}}>{ row }</div>)
     }
